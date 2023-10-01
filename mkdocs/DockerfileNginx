@@ -1,0 +1,44 @@
+FROM titom73/mkdocs AS MKDOCS_BUILD
+
+MAINTAINER Software Shinobi "troy@softwareshinobi.online"
+
+##########################################
+##
+## Set build directory
+##
+
+WORKDIR /docs
+
+##########################################
+##
+## install pip deps
+##
+
+RUN pip install markupsafe==2.0.1
+
+##########################################
+##
+## Copy mkdocs content
+##
+
+COPY mkdocs.yml             mkdocs.yml
+
+COPY .custom-styling.css    custom-styling.css
+
+COPY docs-content           docs-content
+
+##########################################
+
+RUN mkdocs build
+
+RUN ls -lha
+
+##########################################
+
+FROM nginx
+
+##
+
+COPY --from=MKDOCS_BUILD /docs/site /usr/share/nginx/html/
+
+RUN find /usr/share/nginx/html/
